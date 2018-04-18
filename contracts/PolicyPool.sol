@@ -82,14 +82,16 @@ contract PolicyPool is SafeMath, Owned{
 
     
     insChainToken public insChainTokenLedger;
+    address public agent;
 
     uint256 public policyTokenBalance=0;
+    uint256 public policyTokenBalanceFromEther=0;
     //might turn to private in production
     uint256 public policyFeeCollector=0;
     
+    uint256 public policyCandyBalance=0;
+    
     uint256 public policyActiveNum=0;
-
-    uint256 public policyMaxRefund= 1e5 * 10**uint256(18);
 
 
     mapping (uint256 => uint256) policyInternalID;
@@ -107,17 +109,14 @@ contract PolicyPool is SafeMath, Owned{
         address recipient;
         uint256 amount;
         string description;
-        uint256 validDeadline;
         bool executed;
         bool proposalPassed;
         // bytes32 proposalHash;
     }
     
-    // struct array
+    // 理赔公示及执行的struct array
     Proposal[] public proposals;
     uint256 public numProposals;
-
-    uint256 public claimPeriodInMinutes=0;//15*24*60;
     
     uint256 public updated_policy_payload;
 
@@ -127,13 +126,22 @@ contract PolicyPool is SafeMath, Owned{
 
     event PolicyValueIn(address indexed backer, uint256 indexed amount,uint256 indexed policyExternalID);
 
+    //event PolicyLocked(address indexed backer, uint256 indexed debtAmount, bool indexed locked);
+
+    // 记录互助事件公示
     event ProposalAdded(uint indexed proposalID, uint256 indexed policyExternalID, uint256 indexed amount, string description);
-    
+    // 记录互助金发送结果
     event ProposalTallied(uint indexed proposalId, uint256 indexed amount, bool indexed proposalPassed);
 
 
+    modifier onlyAgent {
+        assert(msg.sender == agent);
+        _;
+    }
+    
     function PolicyPool(address tokenLedger) public {
         insChainTokenLedger=insChainToken(tokenLedger);
+        agent=msg.sender;
         addPolicy(0,0);
     }
 
@@ -147,8 +155,6 @@ contract PolicyPool is SafeMath, Owned{
 
 
         require(insChainTokenLedger.transferFrom(from, this, weiAmount));
-
-        policyTokenBalance=safeAdd(policyTokenBalance,weiAmount);
         
         //convert msg.data bytes to uint
         uint payload=0;
@@ -158,28 +164,9 @@ contract PolicyPool is SafeMath, Owned{
             payload += b * 256**i;
         }
         updated_policy_payload = payload;
-
-        uint id = policyInternalID[payload];
-
-  
-        if (id == 0) {
-            id = policies.length;
-            policyInternalID[payload] = id;
-            addPolicy(now,weiAmount);
-            emit PolicyIn(from, weiAmount, payload);
-            policyActiveNum++;
-        }else if (policies[id].accumulatedIn==0){
-
-            policies[id].since=now;
-            policies[id].accumulatedIn=weiAmount;
-            emit PolicyIn(from, weiAmount, payload);
-            policyActiveNum++;
-
-        }else{
-
-            policies[id].accumulatedIn=safeAdd(policies[id].accumulatedIn,weiAmount);
-            emit PolicyValueIn(from, weiAmount, payload);
-        }
+        
+        if(!getx2Policy(from, payload, now, weiAmount)){revert();}
+        policyTokenBalance=safeAdd(policyTokenBalance,weiAmount);
 
         return true;
     }
@@ -204,9 +191,34 @@ contract PolicyPool is SafeMath, Owned{
         policies[policies.length-1].accumulatedIn = weiAmount;
         return policies.length;
     }
+    
+    function getx2Policy(address from, uint256 payload, uint256 timeStamp, uint256 weiAmount) internal returns(bool success){
+        uint id = policyInternalID[payload];
+  
+        if (id == 0) {
+            id = policies.length;
+            policyInternalID[payload] = id;
+            addPolicy(timeStamp,weiAmount);
+            emit PolicyIn(from, weiAmount, payload);
+            policyActiveNum++;
+        }else if (policies[id].accumulatedIn==0){
+
+            policies[id].since=timeStamp;
+            policies[id].accumulatedIn=weiAmount;
+            emit PolicyIn(from, weiAmount, payload);
+            policyActiveNum++;
+
+        }else{
+
+            policies[id].accumulatedIn=safeAdd(policies[id].accumulatedIn,weiAmount);
+            emit PolicyValueIn(from, weiAmount, payload);
+        }
+        return true;
+    }
 
     //the policy balance ledger will be updated either
     // onlyOwner might be changed to onlyManager later
+    // In JS payload = parseInt (policyExternalID, 16)
     function withdrawPolicy(uint256 payload, uint256 weiAmount, uint256 fees, address to) public onlyOwner returns (bool success) {
 
         uint id=policyInternalID[payload];
@@ -214,7 +226,7 @@ contract PolicyPool is SafeMath, Owned{
         require(policies[id].accumulatedIn>0);
         require(weiAmount<policyTokenBalance);
 
-        if(!insChainTokenLedger.transfer(msg.sender,weiAmount)){revert();}
+        if(!insChainTokenLedger.transfer(to,weiAmount)){revert();}
         policyTokenBalance=safeSub(policyTokenBalance,weiAmount);
         policyTokenBalance=safeSub(policyTokenBalance,fees);
         policyFeeCollector=safeAdd(policyFeeCollector,fees);
@@ -243,12 +255,11 @@ contract PolicyPool is SafeMath, Owned{
      * param claimDescription Description of claim
      * param transactionBytecode bytecode of transaction
      */
+     // 提起互助公示：互助金发放人，互助金额(单位是GETX)，互助简述，目前仅限审核后由官方提出
     function newProposal(uint256 payload, address beneficiary, uint256 weiAmount,string claimDescription) onlyOwner public returns(uint256 proposalID){
 
         // 资金池需多于申请的互助金
         require(policyTokenBalance>weiAmount);
-        // 一次互助不能超过10000 GETX
-        require(policyMaxRefund>=weiAmount);
 
         proposals.length++;
         proposalID = proposals.length-1;
@@ -257,8 +268,6 @@ contract PolicyPool is SafeMath, Owned{
         p.recipient = beneficiary;
         p.amount = weiAmount;
         p.description = claimDescription;
-        // 公示后到执行互助金发放前的必要等待期
-        p.validDeadline = now + claimPeriodInMinutes;
         p.executed = false;
         p.proposalPassed = false;
         emit ProposalAdded(proposalID, p.policyPayload, p.amount, p.description);
@@ -272,10 +281,11 @@ contract PolicyPool is SafeMath, Owned{
      * param proposalNumber proposal number
      * param transactionBytecode optional: if the transaction contained a bytecode, you need to send it
      */
+     // 执行互助赔付，需提前知道赔付公示编号
     function executeProposal(uint proposalNumber, uint256 refundAmount, uint256 fees) onlyOwner public returns (bool success){
         Proposal storage p = proposals[proposalNumber];
 
-        require(now >= p.validDeadline && !p.executed);                               //it has not already been executed
+        require(!p.executed);                               //it has not already been executed
         require(p.amount>=refundAmount);                  
 
         // ...then execute result
@@ -304,10 +314,51 @@ contract PolicyPool is SafeMath, Owned{
             
         } else {
             // Proposal failed
+            // todo：赔付失败后应该如何处理？
             p.proposalPassed = false;
         }
 
         return p.proposalPassed;
     }
+    
+    // This function must be hidden in the github repo
+    function joinWithCandy(address signer, uint256 payload, uint256 timeStamp) onlyAgent public returns (bool success){
+        require(signer!=address(0));
+        require(timeStamp<now);
+        require(policyInternalID[payload] == 0);
+        
+        if(!getx2Policy(signer, payload, timeStamp, 0)){revert();}
+        return true;
+    }
+    
+    function updateAgent(address newAgent) onlyOwner public returns(bool success){
+        agent=newAgent;
+        return true;
+    }
 
+    function settleEtherPolicy(address[] froms, uint256[] payloads, uint256[] timeStamps, uint256[] weiAmounts) onlyOwner public returns(bool success){
+        require(froms.length == payloads.length);
+        require(payloads.length == weiAmounts.length);
+        uint i;
+
+        for (i=0;i<froms.length;i++){
+            if(!getx2Policy(froms[i], payloads[i], timeStamps[i], weiAmounts[i])){revert();}
+            // this GETX value must be the same as the ether collector account
+            policyTokenBalanceFromEther=safeAdd(policyTokenBalanceFromEther,weiAmounts[i]);
+            policyTokenBalance=safeAdd(policyTokenBalance,weiAmounts[i]);
+        }
+        return true;
+    }
+    
+    function settleCandyGetx(uint256 weiAmount) onlyOwner public returns (bool success){
+        policyCandyBalance=safeAdd(policyCandyBalance,weiAmount);
+        return true;
+    }
+    
+    function retrievePoolFee(uint256 weiAmount) onlyOwner public returns (bool success){
+        policyFeeCollector=safeSub(policyFeeCollector,weiAmount);
+        if(!insChainTokenLedger.transfer(msg.sender,weiAmount)){revert();}
+        return true;
+    }
+    
 }
