@@ -114,7 +114,7 @@ contract PolicyPool is SafeMath, Owned{
         // bytes32 proposalHash;
     }
     
-    // 理赔公示及执行的struct array
+    // struct array to store user claims
     Proposal[] public proposals;
     uint256 public numProposals;
     
@@ -126,14 +126,12 @@ contract PolicyPool is SafeMath, Owned{
 
     event PolicyValueIn(address indexed backer, uint256 indexed amount,uint256 indexed policyExternalID);
 
-    //event PolicyLocked(address indexed backer, uint256 indexed debtAmount, bool indexed locked);
 
-    // 记录互助事件公示
+    // event log for user claims(admin)
     event ProposalAdded(uint indexed proposalID, uint256 indexed policyExternalID, uint256 indexed amount, string description);
-    // 记录互助金发送结果
     event ProposalTallied(uint indexed proposalId, uint256 indexed amount, bool indexed proposalPassed);
 
-
+    // external agent for candy policies
     modifier onlyAgent {
         assert(msg.sender == agent);
         _;
@@ -141,6 +139,7 @@ contract PolicyPool is SafeMath, Owned{
     
     function PolicyPool(address tokenLedger) public {
         insChainTokenLedger=insChainToken(tokenLedger);
+        // temp agent only, will be changed to the contract later
         agent=msg.sender;
         addPolicy(0,0);
     }
@@ -218,7 +217,6 @@ contract PolicyPool is SafeMath, Owned{
 
     //the policy balance ledger will be updated either
     // onlyOwner might be changed to onlyManager later
-    // In JS payload = parseInt (policyExternalID, 16)
     function withdrawPolicy(uint256 payload, uint256 weiAmount, uint256 fees, address to) public onlyOwner returns (bool success) {
 
         uint id=policyInternalID[payload];
@@ -250,15 +248,13 @@ contract PolicyPool is SafeMath, Owned{
      *
      * Propose to send `weiAmount / 1e18` ether to `beneficiary` for `ClaimDescription`. `transactionBytecode ? Contains : Does not contain` code.
      *
+     * param payload the policy id
      * param beneficiary who to send the ether to
      * param weiAmount amount of token to send, in wei(18 decimals)
      * param claimDescription Description of claim
-     * param transactionBytecode bytecode of transaction
      */
-     // 提起互助公示：互助金发放人，互助金额(单位是GETX)，互助简述，目前仅限审核后由官方提出
     function newProposal(uint256 payload, address beneficiary, uint256 weiAmount,string claimDescription) onlyOwner public returns(uint256 proposalID){
 
-        // 资金池需多于申请的互助金
         require(policyTokenBalance>weiAmount);
 
         proposals.length++;
@@ -279,9 +275,9 @@ contract PolicyPool is SafeMath, Owned{
     /**
      *
      * param proposalNumber proposal number
-     * param transactionBytecode optional: if the transaction contained a bytecode, you need to send it
+     * param refundAmount the money should pay back
+     * param fees to be paid by claimer
      */
-     // 执行互助赔付，需提前知道赔付公示编号
     function executeProposal(uint proposalNumber, uint256 refundAmount, uint256 fees) onlyOwner public returns (bool success){
         Proposal storage p = proposals[proposalNumber];
 
@@ -298,9 +294,9 @@ contract PolicyPool is SafeMath, Owned{
             
             policyTokenBalance=policyTokenBalance - refundAmount - fees;
             policyFeeCollector=policyFeeCollector + fees;
-            // 转账
+            // refund the GETX
             if(!insChainTokenLedger.transfer(p.recipient,refundAmount)){revert();}
-            // 注销账户
+            // clear the data inside
             uint id = policyInternalID[p.policyPayload];
             policies[id].accumulatedIn=0;
             policies[id].since=now;
@@ -314,14 +310,13 @@ contract PolicyPool is SafeMath, Owned{
             
         } else {
             // Proposal failed
-            // todo：赔付失败后应该如何处理？
             p.proposalPassed = false;
         }
 
         return p.proposalPassed;
     }
     
-    // This function must be hidden in the github repo
+    // This function is controlled by agent
     function joinWithCandy(address signer, uint256 payload, uint256 timeStamp) onlyAgent public returns (bool success){
         require(signer!=address(0));
         require(timeStamp<now);
@@ -336,6 +331,8 @@ contract PolicyPool is SafeMath, Owned{
         return true;
     }
 
+    // admin function to transfer in the GETX according to the rate
+    // the admin should transfer "policyTokenBalanceFromEther" to this pool later
     function settleEtherPolicy(address[] froms, uint256[] payloads, uint256[] timeStamps, uint256[] weiAmounts) onlyOwner public returns(bool success){
         require(froms.length == payloads.length);
         require(payloads.length == weiAmounts.length);
@@ -355,6 +352,7 @@ contract PolicyPool is SafeMath, Owned{
         return true;
     }
     
+
     function retrievePoolFee(uint256 weiAmount) onlyOwner public returns (bool success){
         policyFeeCollector=safeSub(policyFeeCollector,weiAmount);
         if(!insChainTokenLedger.transfer(msg.sender,weiAmount)){revert();}
