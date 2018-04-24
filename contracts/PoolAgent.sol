@@ -1,11 +1,13 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.20;
 
-import "./PolicyPool.sol";
+interface PolicyPoolInterface{
+    function joinWithCandy(address, uint256, uint256) onlyAgent public returns (bool);
+}
 
 contract PoolAgent{
     address public owner;
     address public newOwner;
-    PolicyPool public pool;
+    PolicyPoolInterface pool;
 
     event OwnerUpdate(address _prevOwner, address _newOwner);
     
@@ -15,7 +17,7 @@ contract PoolAgent{
     }
     
     function PoolAgent(address poolAddr) public{
-        pool=PolicyPool(poolAddr);
+        pool=PolicyPoolInterface(poolAddr);
         owner = msg.sender;
     }
     
@@ -36,5 +38,11 @@ contract PoolAgent{
         require(pool.joinWithCandy(msg.sender, payload, timestamp));
         
         return true;
+    }
+
+    // Destroy contract.
+    function kill() public {
+        require(msg.sender == owner);
+        selfdestruct(msg.sender);
     }
 }
