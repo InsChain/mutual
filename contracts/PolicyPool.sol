@@ -1,6 +1,9 @@
 pragma solidity ^0.4.21;
 
-import "./insChainToken.sol";
+interface insChainTokenInterface{
+    function transfer(address _to, uint256 _value) public returns (bool success);
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
+}
 
 contract Owned{
     address public owner;
@@ -42,6 +45,38 @@ contract Owned{
         owner = newOwner;
         newOwner = 0x0;
     }
+    
+    event Pause();
+    event Unpause();
+    bool public paused = false;
+  /**
+   * @dev Modifier to make a function callable only when the contract is not paused.
+   */
+    modifier whenNotPaused() {
+        require(!paused);
+        _;
+    }
+  /**
+   * @dev Modifier to make a function callable only when the contract is paused.
+   */
+    modifier whenPaused() {
+        require(paused);
+        _;
+    }
+  /**
+   * @dev called by the owner to pause, triggers stopped state
+   */
+    function pause() onlyOwner whenNotPaused public {
+        paused = true;
+        emit Pause();
+    }
+  /**
+   * @dev called by the owner to unpause, returns to normal state
+   */
+    function unpause() onlyOwner whenPaused public {
+        paused = false;
+        emit Unpause();
+    }
 }
 
 /*
@@ -81,7 +116,7 @@ contract SafeMath {
 contract PolicyPool is SafeMath, Owned{
 
     
-    insChainToken public insChainTokenLedger;
+    insChainTokenInterface public insChainTokenLedger;
     address public agent;
 
     uint256 public policyTokenBalance=0;
@@ -138,7 +173,7 @@ contract PolicyPool is SafeMath, Owned{
     }
     
     function PolicyPool(address tokenLedger) public {
-        insChainTokenLedger=insChainToken(tokenLedger);
+        insChainTokenLedger=insChainTokenInterface(tokenLedger);
         // temp agent only, will be changed to the contract later
         agent=msg.sender;
         addPolicy(0,0);
@@ -148,9 +183,9 @@ contract PolicyPool is SafeMath, Owned{
     //approveAndCall() to activate the policy account in this policy contract
     //this function works as a policy registering and deposit handler
 
-   function receiveApproval(address from,uint256 weiAmount,address tokenLedger, bytes extraData) public returns (bool success){
+   function receiveApproval(address from,uint256 weiAmount,address tokenLedger, bytes extraData) whenNotPaused public returns (bool success){
 
-        require(insChainToken(tokenLedger)==insChainTokenLedger);
+        require(insChainTokenInterface(tokenLedger)==insChainTokenLedger);
 
 
         require(insChainTokenLedger.transferFrom(from, this, weiAmount));
@@ -222,6 +257,7 @@ contract PolicyPool is SafeMath, Owned{
         uint id=policyInternalID[payload];
         require(id>0);
         require(policies[id].accumulatedIn>0);
+        require(policies[id].since<now);
         require(weiAmount<policyTokenBalance);
 
         if(!insChainTokenLedger.transfer(to,weiAmount)){revert();}
@@ -239,7 +275,15 @@ contract PolicyPool is SafeMath, Owned{
     }
 
     function kill() public onlyOwner {
-
+        if(policyTokenBalance>0){
+            if(!insChainTokenLedger.transfer(owner,policyTokenBalance)){revert();}
+            policyTokenBalance=0;
+            policyTokenBalanceFromEther=0;
+        }
+        if(policyFeeCollector>0){
+            if(!insChainTokenLedger.transfer(owner,policyFeeCollector)){revert();}
+            policyFeeCollector=0;
+        }
         selfdestruct(owner);
     }
 
@@ -285,15 +329,16 @@ contract PolicyPool is SafeMath, Owned{
         require(p.amount>=refundAmount);                  
 
         // ...then execute result
-
-        if ( refundAmount+fees<=policyTokenBalance ) {
+        
+        uint256 totalReduce = safeAdd(refundAmount,fees);
+        if ( totalReduce<=policyTokenBalance ) {
             // Proposal passed; execute the transaction
 
             p.executed = true; // Avoid recursive calling
 
             
-            policyTokenBalance=policyTokenBalance - refundAmount - fees;
-            policyFeeCollector=policyFeeCollector + fees;
+            policyTokenBalance=safeSub(policyTokenBalance,totalReduce);
+            policyFeeCollector=safeAdd(policyFeeCollector,fees);
             // refund the GETX
             if(!insChainTokenLedger.transfer(p.recipient,refundAmount)){revert();}
             // clear the data inside
@@ -343,6 +388,7 @@ contract PolicyPool is SafeMath, Owned{
             // this GETX value must be the same as the ether collector account
             policyTokenBalanceFromEther=safeAdd(policyTokenBalanceFromEther,weiAmounts[i]);
             policyTokenBalance=safeAdd(policyTokenBalance,weiAmounts[i]);
+            if(!insChainTokenLedger.transferFrom(msg.sender, this, weiAmounts[i])){revert();}
         }
         return true;
     }
@@ -351,7 +397,6 @@ contract PolicyPool is SafeMath, Owned{
         policyCandyBalance=safeAdd(policyCandyBalance,weiAmount);
         return true;
     }
-    
 
     function retrievePoolFee(uint256 weiAmount) onlyOwner public returns (bool success){
         policyFeeCollector=safeSub(policyFeeCollector,weiAmount);
