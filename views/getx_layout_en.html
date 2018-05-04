@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- meta -->
+  <meta charset="utf-8"/>
+  <!--描述配置于config.js-->
+  <meta name='description' content='<%= config.description %>'>
+
+  <!--关键字配置于config.js-->
+  <meta name="keywords" content="<%= config.keywords %>"/>
+
+  <!--强制IE8采用edge方式渲染 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- 强制页面与设备的宽度保持是1:1 并且页面最大的的宽度比例是1.0,且禁止用户点击屏幕放大浏览 -->
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <!-- 标签是iphone设备中的safari私有meta标签，它表示：允许全屏模式浏览 -->
+  <meta content="yes" name="apple-mobile-web-app-capable"/>
+  <!--iphone的私有标签，它指定的iphone中safari顶端的状态条的样式； -->
+  <meta content="black" name="apple-mobile-web-app-status-bar-style"/>
+  <!-- 告诉设备忽略将页面中的数字识别为电话号码 -->
+  <!-- 用于忽略将页面中邮件地址-->
+  <meta content="telephone=no,email=no,adress=no" name="format-detection"/>
+  <!-- uc强制竖屏 -->
+  <meta name="screen-orientation" content="portrait">
+  <!-- QQ强制竖屏 -->
+  <meta name="x5-orientation" content="portrait">
+  <!-- UC强制全屏 -->
+  <meta name="full-screen" content="yes">
+  <!-- QQ强制全屏 -->
+  <meta name="x5-fullscreen" content="true">
+  <!-- UC应用模式 -->
+  <meta name="browsermode" content="application">
+  <!-- QQ应用模式 -->
+  <meta name="x5-page-mode" content="app">
+  <!-- windows phone 点击无高光 -->
+  <meta name="msapplication-tap-highlight" content="no">
+
+
+
+  <meta name="referrer" content="always">
+
+  <!-- 加载配置文件config.js中 site_headers配置项 -->
+  <%
+  var headers = config.site_headers || [];
+  for (var i = 0, l = headers.length; i < l; i++) {
+  %>
+  <%- headers[i] %>
+  <% } %>
+
+  <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss"/>
+
+  <% if (config.site_icon) { %>
+  <link rel="icon" href="<%- staticFile(config.site_icon) %>" type="image/x-icon"/>
+  <% } %>
+  <!-- js&css 文件加载及压缩 -->
+  <!-- style -->
+  <!-- <%- Loader('/public/stylesheets/index.min.css')
+  .css('/public/libs/bootstrap/css/bootstrap.css')
+  .css('/public/stylesheets/common.css')
+  .css('/public/stylesheets/style.less')
+  .css('/public/stylesheets/responsive.css')
+  .css('/public/stylesheets/jquery.atwho.css')
+  .css('/public/libs/editor/editor.css')
+  .css('/public/libs/webuploader/webuploader.css')
+  .css('/public/libs/code-prettify/prettify.css')
+  .css('/public/libs/font-awesome/css/font-awesome.css')
+  .done(assets, config.site_static_host, config.mini_assets)
+  %> -->
+
+  <!-- scripts -->
+  <!-- <%- Loader('/public/index.min.js')
+  .js('/public/libs/jquery-2.1.0.js')
+  .js('/public/libs/lodash.compat.js')
+  .js('/public/libs/jquery-ujs.js')
+  .js('/public/libs/bootstrap/js/bootstrap.js')
+  .js('/public/libs/jquery.caret.js')
+  .js('/public/libs/jquery.atwho.js')
+  .js('/public/libs/markdownit.js')
+  .js('/public/libs/code-prettify/prettify.js')
+  .js('/public/libs/qrcode.js')
+  .js('/public/javascripts/main.js')
+  .js('/public/javascripts/responsive.js')
+  .done(assets, config.site_static_host, config.mini_assets)
+  %> -->
+
+  <link href="../public/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../public/libs/swiper/css/swiper.min.css" rel="stylesheet">
+  <link href="../public/libs/icheck/skins/all.css" rel="stylesheet">
+  <link href="../public/stylesheets/default_en.css" rel="stylesheet">
+
+
+  <script type="text/javascript" src="../public/libs/jquery-3.3.1.min.js"></script>
+  <script type="text/javascript" src="../public/javascripts/default.js"></script>
+  <script type="text/javascript" src="../public/javascripts/index.js"></script>
+  <script type="text/javascript" src="../public/libs/bootstrap/js/bootstrap.js"></script>
+  <script type="text/javascript" src="../public/libs/layer/layer.js"></script>
+  <script type="text/javascript" src="../public/libs/swiper/js/swiper.min.js"></script>
+  <script type="text/javascript" src="../public/libs/radialIndicator.min.js"></script>
+  <script type="text/javascript" src="../public/libs/icheck/icheck.min.js"></script>
+  <script type="text/javascript" src="../public/javascripts/md5.js"></script>
+
+
+  <title><%-title%></title>
+  <meta content="_csrf" name="csrf-param">
+  <meta content="<%= csrf %>" name="csrf-token">
+</head>
+<body>
+  <div class="contain">
+    <!--顶部用户信息-->
+    <nav class="nav_pc">
+      <div class="nav_box clearfix" style="">
+        <ul class="pull-left list-inline">
+          <li class="logo"><a href="https://inschain.io/index-2.html"><img width="76" src="../public/img/logo.png" alt=""></a></li>
+          
+        </ul>
+        <ul class="pull-right user_info">
+            <li class="home link"><a href="/" title="">Home page</a></li>
+            <li class="square link"><a href="/square" title="">Square</a></li>
+            <li class="publicity link"><a class="public_page" href="/" title="">Mutual publicity</a></li>
+            <li class="blockchain_search link"><a href="/blockchain_search" title="">Blockchain Query</a></li>
+            <!-- <li class="personal link"><a href="/personal" title="">个人中心</a></li> -->
+            <li class="about link"><a href="/about" title="">About us</a></li>
+            <li class="lan link" onclick="changeLan()"><span class="ch ">中文</span>/<span class="en lan_active">EN</span></li>
+            <li class="login link" onclick="show_log()">login</li>
+            <li class="header_menu"><span class="glyphicon glyphicon-th-large"></span></li>
+            <li class="personal_info pointer">
+              <span class="photo"><img src="../public/img/person.png" alt=""></span><span class="user_name"></span>
+              <ul class="link_list">
+                <a class="" href="/"><li>Home page</li></a>
+                <a class="" href="/square"><li>Square</li></a>
+                <a class="" href="/"><li>Mutual publicity</li></a>
+                <a class="" href="/blockchain_search"><li>Blockchain Query</li></a>
+                <a class="pc_show personalcenter" href="/personal"><li>Account summary</li></a>
+                <a class="" href="/about"><li>About us</li></a>
+                <a class=""><li class="lan" onclick="changeLan()"><span class="ch lan_active">中文</span>/<span class="en">EN</span></li></a>
+                <a class="menu_login"><li class="login pointer" onclick="show_log()">login</li></a>
+                <!-- <a class="pc_show"><li class="logout pointer" onclick="log_out()">Log out</li><a> -->
+              </ul>
+            </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="main">
+  <%- body %>
+    </div>
+
+</div>
+
+
+<div class="login_box">
+  <div class="content">
+      <div class="logo">
+          <img src="../public/img/logo.png" alt="">
+      </div>
+      <div class="email_box input_box">
+          <span class="email_icon"></span>
+          <input class="email" type="email" name="email" placeholder="email">
+      </div>
+      <div class="password_box input_box">
+          <span class="password_icon"></span>
+          <input class="password" type="password" name="password" placeholder="password">
+      </div>
+      <div class="input_box code_box_input">
+        <div class="inp_code">
+            <input class="code" type="text" name="code" placeholder="verification code">
+        </div>
+        <div class="code_box">
+
+        </div>
+      </div>
+      <div class="input_box login_btn" onclick="login()">
+          log in
+      </div>
+      <div class="input_box regist_forget">
+        <div class="new_register" onclick="jump_register()">New user</div>
+        <div onclick="forget()">Forgot password</div>
+      </div>
+  </div>
+</div>
+<div class="register_box">
+  <div class="content">
+      <div class="logo">
+          <img src="../public/img/logo.png" alt="">
+      </div>
+      <div class="email_box input_box">
+          <input class="email" type="email" name="email" placeholder="email">
+      </div>
+      <div class="input_box code_box_input">
+        <div class="inp_code">
+            <input class="code" type="text" name="code" placeholder="digit code">
+        </div>
+        <div class="code_box">
+
+        </div>
+      </div>
+      <div class="email_code_box input_box">
+          <div class="inp_code">
+            <input class="email_code" type="text" name="code" placeholder="email code">
+          </div>
+
+          <div class="send_email" send='1' onclick="register_send()">Send</div>
+
+      </div>
+      <div class="password_box input_box">
+          <span class="password_icon"></span>
+          <input class="password1" type="password" name="password" placeholder="password">
+      </div>
+      <div class="password_box input_box">
+          <span class="password_icon"></span>
+          <input class="password2" type="password" name="password" placeholder="password confirmation">
+      </div>
+      <div class="invite_box input_box" style="padding-left:22px">
+          <input class="invite_code" type="text" name="invite_code" placeholder="invitation code">
+      </div>
+      <div class="check_box">
+          <div class="check_1 text-left">
+            <input type="checkbox" class="check_box_1" name="check_box_1"> <span>I had read and agree with the<a  target="blank" href="/doc?doc_id=4">《User registration term and conditions》</a><a target="blank" href="/doc?doc_id=5">《Privacy agreement》</a><a target="blank" href="/doc?doc_id=6">《GETX TOKEN - TERMS AND CONDITIONS OF TOKEN SALE AND USAGE》</a></span>
+          </div>
+      </div>
+      <div class="input_box login_btn" onclick="register()">
+          registration
+      </div>
+  </div>
+</div>
+<div class="forget_box">
+  <div class="content">
+      <div class="logo">
+          <img src="../public/img/logo.png" alt="">
+      </div>
+      <div class="email_box input_box">
+          <input class="email" type="email" name="email" placeholder="email">
+      </div>
+      <div class="input_box code_box_input">
+        <div class="inp_code">
+            <input class="code" type="text" name="code" placeholder="digit code">
+        </div>
+        <div class="code_box">
+
+        </div>
+      </div>
+      <div class="email_code_box input_box">
+          <div class="inp_code">
+            <input class="email_code" type="text" name="code" placeholder="email code">
+          </div>
+
+          <div class="send_email" send='1' onclick="forget_send()">Send</div>
+
+      </div>
+      <div class="password_box input_box">
+          <span class="password_icon"></span>
+          <input class="password1" type="password" name="password" placeholder="password">
+      </div>
+      <div class="password_box input_box">
+        <span class="password_icon"></span>
+          <input class="password2" type="password" name="password" placeholder="password confirmation">
+      </div>
+
+      <div class="input_box login_btn" onclick="forget_confirm()">
+          Submit
+      </div>
+  </div>
+</div>
+<input style="display: none;" class="name_active" type="" name="" value="<%-name%>">
+<script src="../public/javascripts/islogin.js"></script>
+<script type="text/javascript">
+
+    var invitecode = getinvite('inviteCode');
+  var Reg = /^[0-9A-Z]{6}$/
+    if(invitecode){
+        if(invitecode == 'insmutual'){
+            //点击官网登录按钮，弹出登陆框
+            show_log();
+        }else if(Reg.test(invitecode)){
+          //打开邀请码连接，弹出注册框
+          jump_register();
+          $('.invite_code').val(invitecode)
+        }
+        
+    }
+
+
+
+
+    //点击导航栏公示，提示暂无公示
+    $('.public_page').click(function(e){
+        var _this = $(this);
+        var subHref = _this.attr('href');
+        console.log(subHref);
+        e.preventDefault();
+        toast('no publicity~')
+    })
+
+  //语言切换
+  function changeLan(){
+    $.post('/changeLan',{},function(rescnt){
+        if(rescnt.status==0){
+          window.location.reload()
+        }
+    })
+  }
+
+
+  //用户登陆状态
+
+  user_action();
+  $('.'+$('.name_active').val()).addClass('active')
+  
+
+  function user_action(){
+
+    $.post('/islogin',{},function(stage){
+    if(stage.stage){
+      //更改用户状态
+      $('li.login').hide();
+      $('.user_name').html(stage.stage);
+      
+      $('.login_box').hide();
+      $('.personal_info .photo,.personal_info .user_name').show();
+      $('.menu_login').remove();
+
+      $('<a class="pc_show"><li class="pointer" onclick="forget()">Password reset</li><a>').appendTo('.link_list');
+      $('<a class="pc_show"><li class="logout pointer" onclick="log_out()">Logout</li><a>').appendTo('.link_list');
+
+      if(!IsPC()){
+        $('.personal_info .photo,.personal_info .user_name').hide();
+        $('.personalcenter').show();
+      }
+
+    }else{
+      $('.personal_info .photo,.personal_info .user_name,.personalcenter').hide();
+      if(IsPC()){
+        $('li.login').css('display','inline-block');
+      }
+    }
+})
+  }
+
+  //导航栏
+
+var width=document.documentElement.clientWidth;
+
+if(width<900){
+  $('.header_menu').click(function(){
+      $('.link_list').toggle();
+ })
+}
+  var has_confirm={};
+  has_confirm.register=0;
+  has_confirm.forget=0;
+
+
+
+if(width>900){
+  $('.personal_info').hover(function(){
+    $('.link_list a').hide();
+    $('.link_list .pc_show').show();
+    $('.link_list').toggle();
+  })
+}
+
+/*function show_menu(){
+  $('.link_list a').hide();
+  $('.link_list .pc_show').show();
+  $('.link_list').toggle();
+
+}*/
+
+  //checkbox init
+
+  $('input[type="checkbox"]').iCheck({
+      handle : 'checkbox',
+      checkboxClass : 'icheckbox_flat-blue',
+      radioClass : 'iradio_flat-blue'
+  });
+
+  //登出
+
+  function log_out(){
+      $.get('/signout',{},function(rescnt){
+        if(rescnt.status==0){
+          toast('Success log out');
+          window.location.href='/'
+        }
+      })
+  }
+  //显示登陆页
+  function show_log(){
+
+    $('.login_box').click(function(){
+      $('.login_box').hide();
+    });
+    //获取图形验证码
+    $('.login_box .code_box svg').remove();
+
+    $('.login_box .content').click(function(e){
+      e.stopPropagation()
+    })
+
+    getCode($('.login_box .code_box'))
+
+    $('.login_box').css('display','flex');
+  }
+  function getCode(obj){
+
+    obj.find('canvas').remove()
+
+    var canvas=$("<canvas width='90' height='36'></canvas>").appendTo(obj);
+    console.log(canvas)
+    //canvas.width(100).height(40);
+
+    $.post('/getCode',{},function(rescnt){
+      console.log(rescnt)
+        drawPic(rescnt,canvas[0]);
+    })
+  }
+
+  //跳转忘记密码页
+  function forget(){
+
+    $('.login_box').hide();
+    $('.forget_box').click(function(){
+      $('.forget_box').hide();
+    });
+
+    $('.forget_box .content').click(function(e){
+      e.stopPropagation()
+    })
+    getCode($('.forget_box .code_box'));
+    if(IsPC()){
+      $('.forget_box').css('display','flex');
+    }else{
+      $('.forget_box').show();
+      $('.forget_box .content').css('margin','20% auto')
+    }
+  }
+
+  //跳转注册页
+  function jump_register(){
+    $('.login_box').hide();
+
+    getCode($('.register_box .code_box'))
+    
+    if(IsPC()){
+      $('.register_box').css('display','flex');
+    }else{
+      $('.register_box').show();
+      $('.register_box .content').css('margin','20% auto')
+    }
+
+    $('.register_box').click(function(){
+      $('.register_box').hide();
+    });
+
+    $('.register_box .content').click(function(e){
+      e.stopPropagation()
+    })
+
+  }
+  //注册页发送邮件验证码
+  function register_send(){
+    if($('.register_box .email_code_box .send_email').attr('send')==0){
+      return
+    }
+    var email=$('.register_box .email').val()
+    if(email==''){
+      toast('Please filling the email address')
+      return
+    }
+    $('.register_box .email_code_box .send_email').attr('send',0)
+    //check 图形验证码
+    var code=$('.register_box .code').val();
+    $.post('/sendEmailCode',{'code':code,'email': email},function(rescnt){
+      if(rescnt.status==0){
+        toast('submit successfully')
+        has_confirm.register=1;
+        var s=60;
+        var time=setInterval(function(){
+          $('.register_box .email_code_box .send_email').html(s+'s')
+          s--;
+          if(s<0){
+            clearInterval(time);
+            $('.register_box .email_code_box .send_email').html('send').attr('send',1)
+            return
+          }
+        },1000)
+      }
+      else{
+        toast(rescnt.errMsg)
+        $('.register_box .email_code_box .send_email').attr('send',0)
+      }
+    })
+
+  }
+
+  //忘记密码页发送邮件验证码
+
+  function forget_send(){
+    if(!$('.forget_box .email_code_box .send_email').attr('send')){
+      return
+    }
+    var email=$('.forget_box .email').val()
+    if(email==''){
+      toast('Please filling the email address')
+      return
+    }
+    $('.forget_box .email_code_box .send_email').attr('send',0)
+    var code=$('.forget_box .code').val();
+    $.post('/sendEmailCodeSetPass',{'code':code, 'email': email},function(rescnt){
+      console.log(rescnt);
+      if(rescnt.status==0){
+        toast('submit successfully')
+        has_confirm.forget=1;
+        var s=60;
+        var time=setInterval(function(){
+          s--;
+          if(s<0){
+            clearInterval(time);
+            $('.forget_box .email_code_box .send_email').html('send').attr('send',1)
+            return
+          }
+
+          $('.forget_box .email_code_box .send_email').html(s+'s').attr('send',0)
+        },1000)
+      }
+      else{
+        toast(rescnt.errMsg)
+        $('.forget_box .email_code_box .send_email').attr('send',1)
+      }
+    })
+
+  }
+
+  //登陆
+  function login(){
+    var code =$('.login_box .code').val();
+    var email=$(".login_box .email").val();
+    var password=$(".login_box .password").val();
+
+    
+    //输入验证
+    if(email==''){
+      toast('Please filling the email address')
+      return
+    }
+    if(code==''){
+      toast('Please enter the verification code')
+      return
+    }
+    if(password==''){
+      toast('please enter the password')
+      return
+    }
+    var param={};
+    param.code=code;
+    param.email=email;
+    param.password=password;
+    $.post('/signin',param,function(rescnt){
+        console.log(rescnt)
+
+        if(rescnt.status==0){
+          toast('login successfully');
+          //更改用户状态
+          user_action()
+          //登陆成功跳转个人中心
+          window.location.href='/personal'
+        }else{
+          toast(rescnt.errMsg)
+        }
+    })
+  }
+
+  //注册
+  function register(){
+    //var nation=$('.register_box .nation').val()
+    var email=$('.register_box .email').val()
+    var email_code=$('.register_box .email_code').val()
+    var password1=$('.register_box .password1').val()
+    var password2=$('.register_box .password2').val()
+    var check1=$('.register_box .check_box_1')[0].checked
+    var invite_code=$('.register_box .invite_code').val();
+    if(email==''){
+      toast('Please filling the email address')
+      return
+    }
+    if(email_code==''){
+      toast('please enter the email verification code')
+      return
+    }
+    if(password1==''||password2==''){
+      toast('please enter the password')
+      return
+    }
+    if(password1!=password2){
+      toast('password is not consistent')
+      return
+    }
+
+    if(!check1||!has_confirm.register){
+
+      toast('Incorrect digital verfication code or does not tick the agreement box')
+      return
+    }
+    var param={
+      'email':email,
+      'email_code':email_code,
+      'password1':password1,
+      'password2':password2,
+      'invite_code':invite_code
+    }
+    $.post('/signup',param,function(rescnt){
+      if(rescnt.status==0){
+        toast('successfully');
+        $('.register_box').hide();
+        has_confirm.register=0;
+        show_log();
+      }
+      else{
+        toast(rescnt.errMsg);
+
+      }
+    })
+  }
+  //忘记密码提交
+  function forget_confirm(){
+    var email=$('.forget_box .email').val()
+    var email_code=$('.forget_box .email_code').val()
+    var password1=$('.forget_box .password1').val()
+    var password2=$('.forget_box .password2').val()
+
+    //用户输入验证
+    if(email==''){
+      toast('Please filling the email address')
+      return
+    }
+    if(email_code==''){
+      toast('please enter the email verification code')
+      return
+    }
+    if(password1==''||password2==''){
+      toast('please enter the password')
+      return
+    }
+    if(password1!=password2){
+      toast('password is not consistent')
+      return
+    }
+
+    if(!has_confirm.forget){
+      toast('Incorrect digital verfication code')
+      return
+    }
+    var param={
+      'email':email,
+      'email_code':email_code,
+      'password1':password1,
+      'password2':password2
+    }
+    $.post('/password_reset',param,function(rescnt){
+
+      if(rescnt.status==0){
+        toast('successfully');
+        $('.forget_box').hide();
+        has_confirm.forget=0;
+        show_log();
+      }
+      else{
+        toast(rescnt.errMsg);
+      }
+    })
+  }
+
+  //图形验证码点击更换
+  $('.code_box').on('click',function(){
+    
+    var obj=$(this);
+    
+    getCode(obj)
+
+  })
+  //获取url邀请码参数
+    function getinvite(name) { 
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
+        var r = window.location.search.substr(1).match(reg); 
+        if (r != null) return unescape(r[2]); 
+        return null; 
+    }
+</script>
+</body>
+</html>

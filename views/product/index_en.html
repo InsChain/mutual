@@ -1,0 +1,158 @@
+<% layout('getx_layout_en.html') -%>
+<link href="../public/stylesheets/product_en.css" rel="stylesheet">
+<script type="text/javascript" src="../public/libs/echarts.min.js"></script>
+    <header>
+        <!--导航-->
+        <ul class="breadcrumb">
+            <li>Your current location:</li>
+            <li class="active">Product Info</li>
+        </ul>
+        <!--顶部banner -->
+        <div class="top">
+            <img class="img-responsive img_pc" src="../public/img/bg_pc_en.png" alt="">
+            <img class="img-responsive img_mobile" src="../public/img/bg_mobile_en.png" alt="">
+            <!-- <div class="fs_24">当不幸遭遇意外事故时</div>
+            <div class="fs_24">为家人留下2万GEXT的互助金</div>
+            <div class="fs_100">意外伤害互助计划</div>
+            <div class="fs_36">18-60岁人群可加入</div> -->
+            <div class="join_btn"><span class="join" onclick="join_now(<%-program_id%>)">Join now</span></div>
+        </div>
+    </header>
+    <article>
+        <div class="clearfix">
+        	<div class="int_main clearfix">
+        		<div class="introduction">
+        			<span class="introduce">
+        				<div class="title"><img src="../public/img/umbrella.png" alt="">Knowing and understanding insChain Mutual Aid project</div>
+        				<div class="content">One for all, inschain for everyone. InsChain, which is a warm community based on love, unties every member and conveys trust in the name of mutual aid.</div>
+        			</span>
+        			<span class="regular">
+        				<div class="title"><span><img src="../public/img/rule.png" alt="">Mutual Aid rules</span><!-- <span class="detail">查看规则详情&nbsp;&nbsp;&nbsp;<img src="../public/img/arrow2.png" alt=""></span> --></div>
+        				<div class="content">
+        					<div>
+        						<div class="title">One personal misfortune will be share across whole groups</div>
+        						<div class="body">Joining accident mutual assistance project and saving a small number of funds to become members. When there is a member suffer accidental death, the project will fund donation through deducting an certain amount evenly from each member account. The funding amount will donate to the misfortune member’s family.</div>
+        					</div>
+        					<ul class="rule_item">
+        						<li>Age requirement: 16-60;</li>
+        						<li>Claim range: accidental death;</li>
+        						<li>The maximum amount of mutual assistance fund: 100 thousand GETX, or 1 million GETX in a commercial airline accident。</li>
+        						<!-- <li>Maximum amount compensation: 100 thousand GETX;</li> -->
+                                <li> <a href="/doc?doc_id=3">《Principle for insChain Memeber Qualification》</a><a href="/doc?doc_id=1">《Accidental Mutual Aid Project Health Notice》</a><a href="/doc?doc_id=2">《insChain accidental mutual aid rules》</a></li>
+        					</ul>
+        				</div>
+        			</span>
+        		</div>
+        		<div class="normal_question">
+        			<div class="title"><img src="../public/img/question.png" alt="">General questions</div>
+        			<div class="content">
+        				<div>
+        					<div class="question_title">1.Is there any other fees after joining?</div>
+        					<div class="answer">When member suffers an accidental death, all participated members need to contribute the mutual assistance fund evenly. The mutual assistance fund will will be deducted from the account, and it is important to ensure there is sufficient balance. If the balance is less than 5 GETX, the member will force to exit the project.
+                            </div>  
+        				</div>
+        				<div>
+        					<div class="question_title">2.What is the waiting period?</div>
+        					<div class="answer">To ensure the benefits of the majority member,the accidential mutual project had an 30 days waiting period. During this period, participants will not able to receive any mutual assistance fund.</div>  
+        				</div>
+        				<div>
+        					<div class="question_title">3.If a family member had been suffered misfortune, what is the procedures of application?</div>
+        					<div class="answer">If your family member had been suffered accidental death, you could claim the mutual assistance through follow procedures:<br>(1)Send email to:mutualaid@insChain.io；<br>(2)After review by platform, a third parties agencies will be assigned to investigate the case independently.<br>(3)Once the case had been confirming, the member information will publicity announce to all other members<br>(4)[If there is no argument arise by all members, insChain will transfer the donation to nominate account</div>  
+        				</div>
+        				<div>
+        					<div class="question_title">4.If there is insufficient balance to deduct mutual assistance fund, what will happen?</div>
+        					<div class="answer">If the member had insufficient balance to deduct the evenly sharing mutual assistance fund, all remaining balance would be transferred and the member will force to exit the project. If the member wants to rejoin the projects, they will need to recalculate the waiting period. To ensure your benefits, please made sure there is sufficient balance.</div>  
+        				</div>
+        			</div>
+        			<div class="remark">hint: the mutual aid plan is not insurance. Joining the mutual assistance project is a one-way donation behavior, and should not be expected to receive definite risk protection.</div>
+        		</div>
+        	</div>
+        	<div class="e_table">
+        		<!-- <div class="title">
+        			<p><span class="mark">1089032</span>people had been joining mutual aid accidental project</p>
+        			<p>insChain mutual had helping<span class="mark">27</span>members</p>
+        			<p>In total, had been donating<span class="mark">12 thousand GETX</span>for mutual assistance fund </p>
+        		</div>
+        		<div class="table_title">Average per person contribution(GETX)</div> -->
+        		<!-- <div class="table_body">
+        			
+        		</div> -->
+        	</div>
+        </div>
+    </article>
+        
+<script type="text/javascript">
+    /* var myChart = echarts.init($('.table_body')[0]);
+        option = {
+		    xAxis: {
+		        type: 'category',
+		        data: ['2018/3', '2018/4', '2018/5', '2018/6'],
+		        axisLine:{
+		        	show:false
+		        },
+		        axisTick:{
+		        	show:false
+		        },
+		        splitLine:{
+		        	show:false
+		        },
+		        axisLabel:{
+		        	color:'#c9c9c9',
+		        	fontSize:18,
+		        	align:'center'
+		        }
+		    },
+		    yAxis: {
+		        type: 'value',
+		        data:[0, 2, 4, 6, 8, 10, 12,14,16],
+		        axisLine:{
+		        	show:false
+		        },
+		        axisTick:{
+		        	show:false
+		        },
+		        splitLine:{
+		        	show:false
+		        },
+		        axisLabel:{
+		        	color:'#c9c9c9',
+		        	fontSize:18,
+		        	align:'center'
+		        }
+		    },
+		    series: [{
+		        data: [4,7,11,5],
+		        type: 'line',
+		        smooth: true,
+		        symbol:'circle',
+		        symbolSize:12,
+		        lineStyle:{
+		        	color:'#676fe8',
+		        	width:4
+		        },
+		        itemStyle:{
+		        	color:'#676fe8',
+		        }
+		    }]
+		};
+
+        myChart.setOption(option);*/
+
+        function join_now(id){
+            
+
+            $.post('/islogin',{},function(rescnt){
+                if(rescnt.stage==0){
+                    toast("login first,please");
+                    show_log();
+                    return
+                }
+                window.location.href='/purchase?program_id='+id
+            })
+            /*if(IsPC()){
+                window.location.href='/purchase?program_id='+id
+            }else{
+                toast('请在PC端加入互助计划，移动端仅供展示')
+            }*/
+        }
+</script>

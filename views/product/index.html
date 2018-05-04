@@ -1,0 +1,158 @@
+<% layout('getx_layout.html') -%>
+<link href="../public/stylesheets/product.css" rel="stylesheet">
+<script type="text/javascript" src="../public/libs/echarts.min.js"></script>
+    <header>
+        <!--导航-->
+        <ul class="breadcrumb">
+            <li>您当前的位置：</li>
+            <li class="active">互助详情</li>
+        </ul>
+        <!--顶部banner -->
+        <div class="top">
+            <img class="img-responsive img_pc" src="../public/img/bg_pc.png" alt="">
+            <img class="img-responsive img_mobile" src="../public/img/bg_mobile.png" alt="">
+            <!-- <div class="fs_24">当不幸遭遇意外事故时</div>
+            <div class="fs_24">为家人留下2万GEXT的互助金</div>
+            <div class="fs_100">意外伤害互助计划</div>
+            <div class="fs_36">18-60岁人群可加入</div> -->
+            <div class="join_btn"><span class="join" onclick="join_now(<%-program_id%>)">立即加入</span></div>
+        </div>
+    </header>
+    <article>
+        <div class="clearfix">
+        	<div class="int_main clearfix">
+        		<div class="introduction">
+        			<span class="introduce">
+        				<div class="title"><img src="../public/img/umbrella.png" alt="">认识保链意外伤害互助计划</div>
+        				<div class="content">我为人人，互助“卫”我。以爱加持的暖心社区——保链，将一个个成员联合起来，以“互助”之名传递信任。</div>
+        			</span>
+        			<span class="regular">
+        				<div class="title"><span><img src="../public/img/rule.png" alt="">互助规则</span><!-- <span class="detail">查看规则详情&nbsp;&nbsp;&nbsp;<img src="../public/img/arrow2.png" alt=""></span> --></div>
+        				<div class="content">
+        					<div>
+        						<div class="title">一人不幸，众人均摊</div>
+        						<div class="body">加入意外伤害互助计划，预存少量资金成为会员，若有会员遭遇不幸意外身故，意外伤害互助计划将从各位会员的账户中扣除均摊费用，捐助给不幸会员家庭。</div>
+        					</div>
+        					<ul class="rule_item">
+        						<li>适用年龄：16-60周岁；</li>
+        						<li>互助范围：意外身故；</li>
+        						<li>最高获得互助金：10万 GETX；</li>
+        						<li>民航意外最高获得互助金：100万GETX；</li>
+                                <li> <a href="/doc?doc_id=3">《保链互助会员公约》</a><a href="/doc?doc_id=1">《意外互助计划健康告知》</a><a href="/doc?doc_id=2">《保链意外互助计划规则》</a></li>
+        					</ul>
+        				</div>
+        			</span>
+        		</div>
+        		<div class="normal_question">
+        			<div class="title"><img src="../public/img/question.png" alt="">常见问题</div>
+        			<div class="content">
+        				<div>
+        					<div class="question_title">1.成功加入后还有其他费用吗？</div>
+        					<div class="answer">当会员遭遇意外身故时，所有计划会员一起均摊互助金。互助金将从您的账户扣除，请保证余额充足，防止因余额小于5GETX自动退出计划，无法获得互助。<br>
+                            </div>  
+        				</div>
+        				<div>
+        					<div class="question_title">2.什么是等待期？</div>
+        					<div class="answer">为保障绝大多数会员的权益，意外伤害互助计划设置30天等待期，等待期内不享受受助权益。</div>  
+        				</div>
+        				<div>
+        					<div class="question_title">3.如会员遭遇不幸，如何申请互助？</div>
+        					<div class="answer">如会员不幸意外身故，法定受益人可通过以下流程申请互助：<br>(1)发邮件至：mutualaid@inschain.io；<br>(2）经平台初审后，安排独立第三方公估调查人员进行审核；<br>(3)审核确认后，调查资料将对全体会员进行公示；<br>(4)全体会员公示无异议后，互助计划智能合约直接划款。</div>  
+        				</div>
+        				<div>
+        					<div class="question_title">4.账户余额扣费不足怎么办？</div>
+        					<div class="answer">若计划账户余额少于5GETX时，扣除可均摊金额后自动退出计划。另自余额小于5GETX时30天为宽限期，在此期限内，不享受互助权益，充值后次日恢复互助权益。宽限期接受会自动退出计划。若会员再次加入计划，将重新计算等待期。</div>  
+        				</div>
+        			</div>
+        			<div class="remark">温馨提示：互助计划不是保险。加入互助计划是单向的捐赠或捐助行为，不能预期获得确定的风险保障。</div>
+        		</div>
+        	</div>
+        	<div class="e_table">
+        		<!-- <div class="title">
+        			<p><span class="mark">1089032</span>人已参加意外伤害互助计划</p>
+        			<p>保链互助已帮助<span class="mark">27</span>个会员</p>
+        			<p>合计捐出互助金<span class="mark">12万 GETX</span></p>
+        		</div>
+        		<div class="table_title">人均支出金额（GETX）</div> -->
+        		<!-- <div class="table_body">
+        			
+        		</div> -->
+        	</div>
+        </div>
+    </article>
+        
+<script type="text/javascript">
+    /* var myChart = echarts.init($('.table_body')[0]);
+        option = {
+		    xAxis: {
+		        type: 'category',
+		        data: ['2018/3', '2018/4', '2018/5', '2018/6'],
+		        axisLine:{
+		        	show:false
+		        },
+		        axisTick:{
+		        	show:false
+		        },
+		        splitLine:{
+		        	show:false
+		        },
+		        axisLabel:{
+		        	color:'#c9c9c9',
+		        	fontSize:18,
+		        	align:'center'
+		        }
+		    },
+		    yAxis: {
+		        type: 'value',
+		        data:[0, 2, 4, 6, 8, 10, 12,14,16],
+		        axisLine:{
+		        	show:false
+		        },
+		        axisTick:{
+		        	show:false
+		        },
+		        splitLine:{
+		        	show:false
+		        },
+		        axisLabel:{
+		        	color:'#c9c9c9',
+		        	fontSize:18,
+		        	align:'center'
+		        }
+		    },
+		    series: [{
+		        data: [4,7,11,5],
+		        type: 'line',
+		        smooth: true,
+		        symbol:'circle',
+		        symbolSize:12,
+		        lineStyle:{
+		        	color:'#676fe8',
+		        	width:4
+		        },
+		        itemStyle:{
+		        	color:'#676fe8',
+		        }
+		    }]
+		};
+
+        myChart.setOption(option);*/
+
+        function join_now(id){
+            
+
+            $.post('/islogin',{},function(rescnt){
+                if(rescnt.stage==0){
+                    toast("请先登录");
+                    show_log();
+                    return
+                }
+                window.location.href='/purchase?program_id='+id
+            })
+            /*if(IsPC()){
+                window.location.href='/purchase?program_id='+id
+            }else{
+                toast('请在PC端加入互助计划，移动端仅供展示')
+            }*/
+        }
+</script>
